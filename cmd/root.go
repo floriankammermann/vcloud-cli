@@ -11,8 +11,9 @@ import (
 var RootCmd = &cobra.Command{
 	Use:   "vcloud-cli",
 	Short: "a command line interface for the vcloud director api",
-	Long: `a command line interface for the vcloud director api`,
+	Long: "a command line interface for the vcloud director api",
 }
+
 
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
@@ -29,10 +30,12 @@ func init() {
 	RootCmd.PersistentFlags().String("user", "", "Port to run Application server on")
 	RootCmd.PersistentFlags().String( "password", "", "password of vcloud director api")
 	RootCmd.PersistentFlags().String("org", "", "org of vcloud director api")
+	RootCmd.PersistentFlags().String("verbose", "", "verbose output")
 	viper.BindPFlag("url", RootCmd.PersistentFlags().Lookup("url"))
 	viper.BindPFlag("user", RootCmd.PersistentFlags().Lookup("user"))
 	viper.BindPFlag("password", RootCmd.PersistentFlags().Lookup("password"))
 	viper.BindPFlag("org", RootCmd.PersistentFlags().Lookup("org"))
+	viper.BindPFlag("verbose", RootCmd.PersistentFlags().Lookup("verbose"))
 
 	viper.SetEnvPrefix("vcd") // will be uppercased automatically
 	viper.AutomaticEnv()

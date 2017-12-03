@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-
 	"github.com/spf13/cobra"
 	"github.com/floriankammermann/vcloud-cli/vcdapi"
 	"github.com/spf13/viper"
