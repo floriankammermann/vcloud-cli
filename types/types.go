@@ -1637,6 +1637,7 @@ type QueryResultRecordsType struct {
 	VMRecord                   []*QueryResultVMRecordType                   `xml:"VMRecord"`                   // A record representing a VM result.
 	VAppRecord                 []*QueryResultVAppRecordType                 `xml:"VAppRecord"`                 // A record representing a VApp result.
 	OrgNetworkRecord		   []*QueryResultOrgNetworkRecordType 			`xml:"OrgNetworkRecord"`		   // A record representing a OrgNetwork result.
+	OrgVdcRecord			   []*QueryResultOrgVdcRecordType 				`xml:"OrgVdcRecord"`		   	   // A record representing a OrgVdc result.
 	OrgVdcStorageProfileRecord []*QueryResultOrgVdcStorageProfileRecordType `xml:"OrgVdcStorageProfileRecord"` // A record representing storage profiles
 }
 
@@ -1685,6 +1686,12 @@ type QueryResultVMRecordType struct {
 }
 
 type QueryResultOrgNetworkRecordType struct {
+	// Attributes
+	HREF                    string `xml:"href,attr,omitempty"`       // The URI of the entity.
+	Name                    string `xml:"name,attr,omitempty"`       // OrgNetwork name.
+}
+
+type QueryResultOrgVdcRecordType struct {
 	// Attributes
 	HREF                    string `xml:"href,attr,omitempty"`       // The URI of the entity.
 	Name                    string `xml:"name,attr,omitempty"`       // OrgNetwork name.
