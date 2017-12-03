@@ -3,8 +3,6 @@ package vcdapi
 import (
 	"net/http"
 	"fmt"
-	"io/ioutil"
-	"encoding/xml"
 	"github.com/floriankammermann/vcloud-cli/types"
 	"errors"
 )
@@ -62,23 +60,8 @@ func getAllocatedIpsForNetworkHref(networkref string) error {
 
 	fmt.Printf("the network href: [%s]\n", networkref)
 
-	req, err := http.NewRequest("GET", networkref+"/allocatedAddresses", nil)
-	req.Header.Set("x-vcloud-authorization", vcdClient.VAToken)
-	req.Header.Set("Accept", "application/*+xml;version=5.5")
-
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		panic(err)
-	}
-
-	defer resp.Body.Close()
-
-	//body, err := ioutil.ReadAll(resp.Body)
-	//fmt.Println("response Body:", string(body))
-
 	queryRes := new(types.AllocatedIpAddressesType)
-	decodeBody(resp, queryRes)
+	ExecRequest(networkref, "/allocatedAddresses", queryRes)
 
 	for _, ipAddress := range queryRes.IpAddress {
 		fmt.Printf("ip [%s] ", ipAddress.IpAddress)
@@ -91,24 +74,6 @@ func getAllocatedIpsForNetworkHref(networkref string) error {
 			}
 		}
 		fmt.Print("\n")
-	}
-
-	return nil
-}
-
-// decodeBody is used to XML decode a response body
-func decodeBody(resp *http.Response, out interface{}) error {
-
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return err
-	}
-
-	//fmt.Println("response Body:", string(body))
-
-	// Unmarshal the XML.
-	if err = xml.Unmarshal(body, &out); err != nil {
-		return err
 	}
 
 	return nil
