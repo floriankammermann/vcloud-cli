@@ -49,9 +49,23 @@ var vmCommand = &cobra.Command{
 	},
 }
 
+var orgvdcCmd = &cobra.Command{
+	Use:   "orgvdc",
+	Short: "query orgvdc requests",
+	Long: "query orgvdc requests",
+	Run: func(cmd *cobra.Command, args []string) {
+		url := viper.GetString("url")
+		user := viper.GetString("user")
+		password := viper.GetString("password")
+		org := viper.GetString("org")
+		vcdapi.GetAuthToken(url, user, password, org)
+		vcdapi.GetAllVdcorg(url)
+	},
+}
 func init() {
 	queryCmd.AddCommand(allocatedipCmd)
 	allocatedipCmd.Flags().StringVarP(&networkname, "network", "n", "", "network name to search allocated ips on")
 	queryCmd.AddCommand(vmCommand)
+	queryCmd.AddCommand(orgvdcCmd)
 	RootCmd.AddCommand(queryCmd)
 }
