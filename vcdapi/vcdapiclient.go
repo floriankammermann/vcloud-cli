@@ -1,27 +1,28 @@
 package vcdapi
 
 import (
-	"net/http"
 	"fmt"
 	"github.com/floriankammermann/vcloud-cli/types"
 	"errors"
 )
 
-func GetAllVApp(url string) {
-	req, err := http.NewRequest("GET", url+"/api/query?type=vApp&fields=name&pageSize=512", nil)
-	req.Header.Set("x-vcloud-authorization", vcdClient.VAToken)
-	req.Header.Set("Accept", "application/*+xml;version=5.5")
+func GetAllVdcorg(url string) {
 
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		panic(err)
+	path := "/api/query?type=orgVdc&fields=name&pageSize=512"
+	queryRes := new(types.QueryResultRecordsType)
+	ExecRequest(url, path, queryRes)
+
+	for _, vapp := range queryRes.OrgVdcRecord {
+		fmt.Printf("orgVdc Name [%s]\n", vapp.Name)
 	}
 
-	defer resp.Body.Close()
+}
 
+func GetAllVApp(url string) {
+
+	path := "/api/query?type=vApp&fields=name&pageSize=512"
 	queryRes := new(types.QueryResultRecordsType)
-	decodeBody(resp, queryRes)
+	ExecRequest(url, path, queryRes)
 
 	for _, vapp := range queryRes.VAppRecord {
 		fmt.Printf("vApp Name [%s]\n", vapp.Name)

@@ -67,6 +67,10 @@ func decodeBody(resp *http.Response, out interface{}) error {
 		fmt.Println("response Body:", string(body))
 	}
 
+	if out == nil {
+		return nil
+	}
+
 	// Unmarshal the XML.
 	if err = xml.Unmarshal(body, &out); err != nil {
 		return err
