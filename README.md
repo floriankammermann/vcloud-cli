@@ -13,6 +13,9 @@ set the following env vars
 * VCD_PASSWORD
 * VCD_ORG
 
+if you are behind a proxy set also
+* HTTPS_PROXY
+
 explore the possiblities of the cli by using the help.  
 
 the command structure of the vcloud-cli:  
@@ -25,3 +28,11 @@ the command structure of the vcloud-cli:
 at every level you can use the help:    
 * `vcloud-cli query --help`
 * `vcloud-cli query allocatedips --help`
+
+### examples
+
+get all vapps
+`vcloud-cli query vapp`
+
+get all vapps and the xml
+`vcloud-cli query vapp --verbose true`
