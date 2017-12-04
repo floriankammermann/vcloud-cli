@@ -79,3 +79,50 @@ func getAllocatedIpsForNetworkHref(networkref string) error {
 
 	return nil
 }
+
+func GetNATRulesForEdgeGatweway(url string, edgegatewayname string) error {
+
+	if len(edgegatewayname) == 0 {
+		return errors.New("networkname is empty")
+	}
+
+	path := "/api/query?type=edgeGateway&fields=name&filter=name=="+edgegatewayname
+	queryRes := new(types.QueryResultRecordsType)
+	ExecRequest(url, path, queryRes)
+
+	for _, net := range queryRes.OrgNetworkRecord {
+		fmt.Printf("org network name [%s]\n", net.Name)
+	}
+
+	if len(queryRes.EdgeGatewayRecord) > 1 {
+		return errors.New("found more than one org network for name: " + edgegatewayname)
+	}
+	if len(queryRes.EdgeGatewayRecord) == 0 {
+		return errors.New("found no org network for name: " + edgegatewayname)
+	}
+	getNATRulesForEdgeGatewayHref(queryRes.EdgeGatewayRecord[0].HREF)
+	return nil
+}
+
+func getNATRulesForEdgeGatewayHref(edgegatewayref string) error {
+	if len(edgegatewayref) == 0 {
+		return errors.New(" edgegatewayref is empty")
+	}
+
+	fmt.Printf("the edgegateway href: [%s]\n", edgegatewayref)
+
+	queryRes := new(types.EdgeGateway)
+	ExecRequest(edgegatewayref, "", queryRes)
+
+	fmt.Println("[id]    [type] [enabled] [interface]    [originalIp]   [originalPort]    [TranslatedIp]     [TranslatedPort]   [protocol]")
+	for _, natRule := range queryRes.Configuration.EdgeGatewayServiceConfiguration.NatService.NatRule {
+
+		fmt.Printf("[%s] [%s] [%t]   [%s] [%s] [%s] [%s] [%s]", natRule.ID, natRule.RuleType, natRule.IsEnabled,
+																	 natRule.GatewayNatRule.Interface.Name, natRule.GatewayNatRule.OriginalIP,
+																	 natRule.GatewayNatRule.OriginalPort, natRule.GatewayNatRule.TranslatedIP,
+																	 natRule.GatewayNatRule.TranslatedPort)
+		fmt.Print("\n")
+	}
+
+	return nil
+}
