@@ -13,8 +13,11 @@ set the following env vars
 * VCD_PASSWORD
 * VCD_ORG
 
-if you are behind a proxy set also
-* HTTPS_PROXY
+if you are behind a proxy set:
+* HTTPS_PROXY (on Windows)
+* HTTP_PROXY (on Windows)
+* https_proxy (on Linux)
+* http_proxy (on Linux)
 
 explore the possiblities of the cli by using the help.  
 
@@ -35,4 +38,7 @@ get all vapps
 `vcloud-cli query vapp`
 
 get all vapps and the xml
-`vcloud-cli query vapp --verbose true`
+`vcloud-cli --verbose true query vapp`
+
+issue a request and specify the path
+`vcloud-cli --verbose true --path "/api/query" request`
