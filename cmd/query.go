@@ -48,7 +48,26 @@ var natruleCmd = &cobra.Command{
 			password := viper.GetString("password")
 			org := viper.GetString("org")
 			vcdapi.GetAuthToken(url, user, password, org)
-			vcdapi.GetNATRulesForEdgeGatweway(url, edgegatewayname)
+			vcdapi.GetEdgeGatweway(url, edgegatewayname, vcdapi.RenderNATRulesForEdgegateway)
+		} else {
+			fmt.Println("you have to provide the edgegatewayname")
+		}
+	},
+}
+
+var firewallruleCmd = &cobra.Command{
+	Use:   "firewallrule",
+	Short: "firewallrules for an edge gateway",
+	Long: "get all firewall rules for an edge gateway",
+	Run: func(cmd *cobra.Command, args []string) {
+
+		if len(edgegatewayname) > 0 {
+			url := viper.GetString("url")
+			user := viper.GetString("user")
+			password := viper.GetString("password")
+			org := viper.GetString("org")
+			vcdapi.GetAuthToken(url, user, password, org)
+			vcdapi.GetEdgeGatweway(url, edgegatewayname, vcdapi.RenderFirewallRulesForEdgegateway)
 		} else {
 			fmt.Println("you have to provide the edgegatewayname")
 		}
@@ -87,6 +106,8 @@ func init() {
 	allocatedipCmd.Flags().StringVarP(&networkname, "network", "n", "", "network name to search allocated ips on")
 	queryCmd.AddCommand(natruleCmd)
 	natruleCmd.Flags().StringVarP(&edgegatewayname, "edgegateway", "e", "", "edgegateway name to search nat rules on")
+	queryCmd.AddCommand(firewallruleCmd)
+	firewallruleCmd.Flags().StringVarP(&edgegatewayname, "edgegateway", "e", "", "edgegateway name to search nat rules on")
 	queryCmd.AddCommand(vmCommand)
 	queryCmd.AddCommand(orgvdcCmd)
 	RootCmd.AddCommand(queryCmd)

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/floriankammermann/vcloud-cli/types"
 	"errors"
+	"strconv"
 )
 
 func GetAllVdcorg(url string) {
@@ -80,7 +81,9 @@ func getAllocatedIpsForNetworkHref(networkref string) error {
 	return nil
 }
 
-func GetNATRulesForEdgeGatweway(url string, edgegatewayname string) error {
+type RenderEdgegatewayResults func(edgegateway string) error
+
+func GetEdgeGatweway(url string, edgegatewayname string, renderer RenderEdgegatewayResults) error {
 
 	if len(edgegatewayname) == 0 {
 		return errors.New("networkname is empty")
@@ -100,27 +103,60 @@ func GetNATRulesForEdgeGatweway(url string, edgegatewayname string) error {
 	if len(queryRes.EdgeGatewayRecord) == 0 {
 		return errors.New("found no org network for name: " + edgegatewayname)
 	}
-	getNATRulesForEdgeGatewayHref(queryRes.EdgeGatewayRecord[0].HREF)
+	renderer(queryRes.EdgeGatewayRecord[0].HREF)
 	return nil
 }
 
-func getNATRulesForEdgeGatewayHref(edgegatewayref string) error {
-	if len(edgegatewayref) == 0 {
+func RenderNATRulesForEdgegateway(edgegatewayhref string) error {
+	if len(edgegatewayhref) == 0 {
 		return errors.New(" edgegatewayref is empty")
 	}
 
-	fmt.Printf("the edgegateway href: [%s]\n", edgegatewayref)
+	fmt.Printf("the edgegateway href: [%s]\n", edgegatewayhref)
 
 	queryRes := new(types.EdgeGateway)
-	ExecRequest(edgegatewayref, "", queryRes)
+	ExecRequest(edgegatewayhref, "", queryRes)
 
 	fmt.Println("[id]    [type] [enabled] [interface]    [originalIp]   [originalPort]    [TranslatedIp]     [TranslatedPort]   [protocol]")
 	for _, natRule := range queryRes.Configuration.EdgeGatewayServiceConfiguration.NatService.NatRule {
 
-		fmt.Printf("[%s] [%s] [%t]   [%s] [%s] [%s] [%s] [%s]", natRule.ID, natRule.RuleType, natRule.IsEnabled,
+		fmt.Printf("[%s] [%s] [%t]   [%s] [%s] [%s] [%s] [%s] [%s]", natRule.ID, natRule.RuleType, natRule.IsEnabled,
 																	 natRule.GatewayNatRule.Interface.Name, natRule.GatewayNatRule.OriginalIP,
 																	 natRule.GatewayNatRule.OriginalPort, natRule.GatewayNatRule.TranslatedIP,
-																	 natRule.GatewayNatRule.TranslatedPort)
+																	 natRule.GatewayNatRule.TranslatedPort, natRule.Description)
+		fmt.Print("\n")
+	}
+
+	return nil
+}
+
+func RenderFirewallRulesForEdgegateway(edgegatewayhref string) error {
+	if len(edgegatewayhref) == 0 {
+		return errors.New(" edgegatewayref is empty")
+	}
+
+	fmt.Printf("the edgegateway href: [%s]\n", edgegatewayhref)
+
+	queryRes := new(types.EdgeGateway)
+	ExecRequest(edgegatewayhref, "", queryRes)
+
+	fmt.Println("[id]    [source] [destination] [protocol]    [policy]   [description]")
+	for _, fwRule := range queryRes.Configuration.EdgeGatewayServiceConfiguration.FirewallService.FirewallRule {
+
+		var protocol string
+		if fwRule.Protocols.Any == true {
+			protocol = "any"
+		} else if fwRule.Protocols.ICMP == true {
+			protocol = "icmp"
+		} else if fwRule.Protocols.TCP == true {
+			protocol = "tcp"
+		} else if fwRule.Protocols.UDP == true {
+			protocol = "udp"
+		}
+
+		source := fwRule.SourceIP+":"+strconv.Itoa(fwRule.SourcePort)
+		destination := fwRule.DestinationIP+":"+fwRule.DestinationPortRange
+		fmt.Printf("[%s] [%s] [%s]   [%s] [%s] [%s]", fwRule.ID, source, destination, protocol, fwRule.Policy, fwRule.Description)
 		fmt.Print("\n")
 	}
 
