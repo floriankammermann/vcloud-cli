@@ -90,8 +90,8 @@ var vmCommand = &cobra.Command{
 
 var orgvdcCmd = &cobra.Command{
 	Use:   "orgvdc",
-	Short: "query orgvdc requests",
-	Long: "query orgvdc requests",
+	Short: "query orgvdc",
+	Long: "query orgvdc",
 	Run: func(cmd *cobra.Command, args []string) {
 		url := viper.GetString("url")
 		user := viper.GetString("user")
@@ -101,6 +101,21 @@ var orgvdcCmd = &cobra.Command{
 		vcdapi.GetAllVdcorg(url)
 	},
 }
+
+var orgnetCmd = &cobra.Command{
+	Use:   "orgnet",
+	Short: "query orgnet",
+	Long: "query orgnet",
+	Run: func(cmd *cobra.Command, args []string) {
+		url := viper.GetString("url")
+		user := viper.GetString("user")
+		password := viper.GetString("password")
+		org := viper.GetString("org")
+		vcdapi.GetAuthToken(url, user, password, org)
+		vcdapi.GetAllOrgNetworks(url)
+	},
+}
+
 func init() {
 	queryCmd.AddCommand(allocatedipCmd)
 	allocatedipCmd.Flags().StringVarP(&networkname, "network", "n", "", "network name to search allocated ips on")
@@ -110,5 +125,6 @@ func init() {
 	firewallruleCmd.Flags().StringVarP(&edgegatewayname, "edgegateway", "e", "", "edgegateway name to search nat rules on")
 	queryCmd.AddCommand(vmCommand)
 	queryCmd.AddCommand(orgvdcCmd)
+	queryCmd.AddCommand(orgnetCmd)
 	RootCmd.AddCommand(queryCmd)
 }

@@ -1636,8 +1636,8 @@ type QueryResultRecordsType struct {
 	EdgeGatewayRecord          []*QueryResultEdgeGatewayRecordType          `xml:"EdgeGatewayRecord"`          // A record representing a EdgeGateway result.
 	VMRecord                   []*QueryResultVMRecordType                   `xml:"VMRecord"`                   // A record representing a VM result.
 	VAppRecord                 []*QueryResultVAppRecordType                 `xml:"VAppRecord"`                 // A record representing a VApp result.
-	OrgNetworkRecord		   []*QueryResultOrgNetworkRecordType 			`xml:"OrgNetworkRecord"`		   // A record representing a OrgNetwork result.
-	OrgVdcRecord			   []*QueryResultOrgVdcRecordType 				`xml:"OrgVdcRecord"`		   	   // A record representing a OrgVdc result.
+	OrgVdcNetworkRecord        []*QueryResultOrgVdcNetworkRecordType        `xml:"OrgVdcNetworkRecord"`        // A record representing a OrgVdcNetwork result.
+	OrgVdcRecord               []*QueryResultOrgVdcRecordType               `xml:"OrgVdcRecord"`               // A record representing a OrgVdc result.
 	OrgVdcStorageProfileRecord []*QueryResultOrgVdcStorageProfileRecordType `xml:"OrgVdcStorageProfileRecord"` // A record representing storage profiles
 }
 
@@ -1685,7 +1685,7 @@ type QueryResultVMRecordType struct {
 	TaskStatus              string `xml:"TaskStatus,attr,omitempty"`
 }
 
-type QueryResultOrgNetworkRecordType struct {
+type QueryResultOrgVdcNetworkRecordType struct {
 	// Attributes
 	HREF                    string `xml:"href,attr,omitempty"`       // The URI of the entity.
 	Name                    string `xml:"name,attr,omitempty"`       // OrgNetwork name.

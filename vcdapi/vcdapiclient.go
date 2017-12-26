@@ -5,6 +5,8 @@ import (
 	"github.com/floriankammermann/vcloud-cli/types"
 	"errors"
 	"strconv"
+	"text/tabwriter"
+	"os"
 )
 
 func GetAllVdcorg(url string) {
@@ -13,12 +15,30 @@ func GetAllVdcorg(url string) {
 	queryRes := new(types.QueryResultRecordsType)
 	ExecRequest(url, path, queryRes)
 
-	for _, vapp := range queryRes.OrgVdcRecord {
-		fmt.Printf("orgVdc Name [%s]\n", vapp.Name)
+	for _, vdc := range queryRes.OrgVdcRecord {
+		fmt.Printf("orgVdc Name [%s]\n", vdc.Name)
 	}
 
 }
 
+func GetAllOrgNetworks(url string) {
+
+	path := "/api/query?type=orgVdcNetwork&fields=name&pageSize=512"
+	queryRes := new(types.QueryResultRecordsType)
+	ExecRequest(url, path, queryRes)
+
+	// create a new tabwriter
+	w := new(tabwriter.Writer)
+	w.Init(os.Stdout, 0, 8, 2, '\t', tabwriter.Debug|tabwriter.AlignRight)
+	fmt.Fprintln(w, "Name\tHref\t")
+	for _, orgnetwork := range queryRes.OrgVdcNetworkRecord {
+		fmt.Fprintf(w, "%s\t%s\t\n", orgnetwork.Name, orgnetwork.HREF)
+	}
+	fmt.Fprintln(w)
+	w.Flush()
+
+
+}
 func GetAllVApp(url string) {
 
 	path := "/api/query?type=vApp&fields=name&pageSize=512"
@@ -41,17 +61,17 @@ func GetAllocatedIpsForNetworkName(url string, networkname string) error {
 	queryRes := new(types.QueryResultRecordsType)
 	ExecRequest(url, path, queryRes)
 
-	for _, net := range queryRes.OrgNetworkRecord {
+	for _, net := range queryRes.OrgVdcNetworkRecord {
 		fmt.Printf("org network name [%s]\n", net.Name)
 	}
 
-	if len(queryRes.OrgNetworkRecord) > 1 {
+	if len(queryRes.OrgVdcNetworkRecord) > 1 {
 		return errors.New("found more than one org network for name: " + networkname)
 	}
-	if len(queryRes.OrgNetworkRecord) == 0 {
+	if len(queryRes.OrgVdcNetworkRecord) == 0 {
 		return errors.New("found no org network for name: " + networkname)
 	}
-	getAllocatedIpsForNetworkHref(queryRes.OrgNetworkRecord[0].HREF)
+	getAllocatedIpsForNetworkHref(queryRes.OrgVdcNetworkRecord[0].HREF)
 	return nil
 }
 
@@ -93,7 +113,7 @@ func GetEdgeGatweway(url string, edgegatewayname string, renderer RenderEdgegate
 	queryRes := new(types.QueryResultRecordsType)
 	ExecRequest(url, path, queryRes)
 
-	for _, net := range queryRes.OrgNetworkRecord {
+	for _, net := range queryRes.OrgVdcNetworkRecord {
 		fmt.Printf("org network name [%s]\n", net.Name)
 	}
 
