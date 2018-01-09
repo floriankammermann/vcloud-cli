@@ -1,3 +1,5 @@
+**This client is deprecated, use https://github.com/vmware/vcd-cli/**
+
 # a cli for the vcloud api
 
 ## api spec
