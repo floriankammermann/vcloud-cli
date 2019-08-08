@@ -1,12 +1,14 @@
 package vcdapi
 
 import (
-	"fmt"
-	"github.com/floriankammermann/vcloud-cli/types"
 	"errors"
-	"strconv"
-	"text/tabwriter"
+	"fmt"
 	"os"
+	"strconv"
+	"strings"
+	"text/tabwriter"
+
+	"github.com/floriankammermann/vcloud-cli/types"
 )
 
 func GetAllVdcorg(url string) {
@@ -37,7 +39,6 @@ func GetAllOrgNetworks(url string) {
 	fmt.Fprintln(w)
 	w.Flush()
 
-
 }
 func GetAllVApp(url string) {
 
@@ -57,7 +58,7 @@ func GetAllocatedIpsForNetworkName(url string, networkname string) error {
 		return errors.New("networkname is empty")
 	}
 
-	path := "/api/query?type=orgNetwork&fields=name&filter=name=="+networkname
+	path := "/api/query?type=orgNetwork&fields=name&filter=name==" + networkname
 	queryRes := new(types.QueryResultRecordsType)
 	ExecRequest(url, path, queryRes)
 
@@ -109,7 +110,7 @@ func GetEdgeGatweway(url string, edgegatewayname string, renderer RenderEdgegate
 		return errors.New("networkname is empty")
 	}
 
-	path := "/api/query?type=edgeGateway&fields=name&filter=name=="+edgegatewayname
+	path := "/api/query?type=edgeGateway&fields=name&filter=name==" + edgegatewayname
 	queryRes := new(types.QueryResultRecordsType)
 	ExecRequest(url, path, queryRes)
 
@@ -141,9 +142,9 @@ func RenderNATRulesForEdgegateway(edgegatewayhref string) error {
 	for _, natRule := range queryRes.Configuration.EdgeGatewayServiceConfiguration.NatService.NatRule {
 
 		fmt.Printf("[%s] [%s] [%t]   [%s] [%s] [%s] [%s] [%s] [%s]", natRule.ID, natRule.RuleType, natRule.IsEnabled,
-																	 natRule.GatewayNatRule.Interface.Name, natRule.GatewayNatRule.OriginalIP,
-																	 natRule.GatewayNatRule.OriginalPort, natRule.GatewayNatRule.TranslatedIP,
-																	 natRule.GatewayNatRule.TranslatedPort, natRule.Description)
+			natRule.GatewayNatRule.Interface.Name, natRule.GatewayNatRule.OriginalIP,
+			natRule.GatewayNatRule.OriginalPort, natRule.GatewayNatRule.TranslatedIP,
+			natRule.GatewayNatRule.TranslatedPort, natRule.Description)
 		fmt.Print("\n")
 	}
 
@@ -159,8 +160,10 @@ func RenderFirewallRulesForEdgegateway(edgegatewayhref string) error {
 
 	queryRes := new(types.EdgeGateway)
 	ExecRequest(edgegatewayhref, "", queryRes)
+	w := new(tabwriter.Writer)
+	w.Init(os.Stdout, 0, 8, 2, ' ', 0)
+	fmt.Fprintln(w, "Id\tSource\tDestination\tProtocol\tPolicy\tDescription")
 
-	fmt.Println("[id]    [source] [destination] [protocol]    [policy]   [description]")
 	for _, fwRule := range queryRes.Configuration.EdgeGatewayServiceConfiguration.FirewallService.FirewallRule {
 
 		var protocol string
@@ -174,11 +177,12 @@ func RenderFirewallRulesForEdgegateway(edgegatewayhref string) error {
 			protocol = "udp"
 		}
 
-		source := fwRule.SourceIP+":"+strconv.Itoa(fwRule.SourcePort)
-		destination := fwRule.DestinationIP+":"+fwRule.DestinationPortRange
-		fmt.Printf("[%s] [%s] [%s]   [%s] [%s] [%s]", fwRule.ID, source, destination, protocol, fwRule.Policy, fwRule.Description)
-		fmt.Print("\n")
+		source := fwRule.SourceIP + ":" + strconv.Itoa(fwRule.SourcePort)
+		destination := fwRule.DestinationIP + ":" + fwRule.DestinationPortRange
+		fmt.Fprintf(w, "%s\t|%s\t|%s\t|%s\t|%s\t|%s\t\n", strings.TrimSpace(fwRule.ID), strings.TrimSpace(source), strings.TrimSpace(destination), strings.TrimSpace(protocol), strings.TrimSpace(fwRule.Policy), strings.TrimSpace(fwRule.Description))
 	}
 
+	fmt.Fprintln(w)
+	w.Flush()
 	return nil
 }
