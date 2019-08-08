@@ -138,16 +138,21 @@ func RenderNATRulesForEdgegateway(edgegatewayhref string) error {
 	queryRes := new(types.EdgeGateway)
 	ExecRequest(edgegatewayhref, "", queryRes)
 
-	fmt.Println("[id]    [type] [enabled] [interface]    [originalIp]   [originalPort]    [TranslatedIp]     [TranslatedPort]   [protocol]")
+	w := new(tabwriter.Writer)
+	w.Init(os.Stdout, 0, 8, 2, ' ', 0)
+	fmt.Fprintln(w, "Id\tType\tEnabled\tInterface\tOriginalIp\tOriginalPort\tTranslatedIp\tTranslatedPort\tProtocol")
+
 	for _, natRule := range queryRes.Configuration.EdgeGatewayServiceConfiguration.NatService.NatRule {
 
-		fmt.Printf("[%s] [%s] [%t]   [%s] [%s] [%s] [%s] [%s] [%s]", natRule.ID, natRule.RuleType, natRule.IsEnabled,
+		fmt.Fprintf(w, "%s\t|%s\t|%s\t|%s\t|%s\t|%s\t|%s\t|%s\t|%s\t\n", natRule.ID, natRule.RuleType, natRule.IsEnabled,
 			natRule.GatewayNatRule.Interface.Name, natRule.GatewayNatRule.OriginalIP,
 			natRule.GatewayNatRule.OriginalPort, natRule.GatewayNatRule.TranslatedIP,
 			natRule.GatewayNatRule.TranslatedPort, natRule.Description)
 		fmt.Print("\n")
 	}
 
+	fmt.Fprintln(w)
+	w.Flush()
 	return nil
 }
 
